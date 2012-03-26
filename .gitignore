@@ -6,3 +6,9 @@
 
 # py.test coverage files
 .coverage
+htmlcov
+
+# build files
+build
+dist
+KnewtonConfig.egg-info
