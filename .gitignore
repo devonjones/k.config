@@ -11,4 +11,4 @@ htmlcov
 # build files
 build
 dist
-KnewtonConfig.egg-info
+k.config.egg-info
