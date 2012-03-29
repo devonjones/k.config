@@ -1,5 +1,16 @@
 #!/usr/bin/env python
-from setuptools import setup
+from setuptools import setup, Command
+
+class PyTest(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        import sys,subprocess
+        errno = subprocess.call([sys.executable, 'runtests.py'])
+        raise SystemExit(errno)
 
 def get_version():
 	build_version = 1
@@ -13,6 +24,7 @@ setup(
 	author_email='devon@knewton.com',
 	license = 'Proprietary',
 	packages=['k', 'k.config'],
+    cmdclass = {'test': PyTest},
 	install_requires=[
 		'PyYAML>=3.09',
 	],
