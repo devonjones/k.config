@@ -2,10 +2,8 @@
 from setuptools import setup
 
 def get_version():
-	v = file('version.txt', 'r')
-	with v:
-		lines = v.readlines()
-		return ''.join(lines).strip()
+	build_version = 1
+	return build_version
 
 setup(
 	name='k.config',
