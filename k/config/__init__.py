@@ -76,12 +76,16 @@ class KnewtonConfigDefault:
 			return self.config_types[key]
 		else:
 			value = fetch_knewton_config(default, config)
-			self.config_types[key] = value
+			self._add_config(value, default, config)
 			return value
+
+	def _add_config(self, config_hash, default, config=None):
+		key = str(default) + "__" + str(config)
+		self.config_types[key] = config_hash
 
 KnewtonConfig = KnewtonConfigDefault()
 
-class KnewtonConfigTest:
+class KnewtonConfigTest(KnewtonConfigDefault):
 	"""
 	This is a caching singleton for testing.  Use this class
 	to override the default behavior of KnewtonConfig like so:
@@ -91,9 +95,6 @@ class KnewtonConfigTest:
 	"""
 	def __init__(self, config_types={}):
 		self.config_types = config_types
-
-	def __call__(self):
-		return self
 
 	def fetch_config(self, default, config=None):
 		"""
@@ -106,6 +107,4 @@ class KnewtonConfigTest:
 		"""
 		Adds a dict to the cache for tests
 		"""
-		key = str(default) + "__" + str(config)
-		self.config_types[key] = config_hash
-
+		self._add_config(config_hash, default, config)
