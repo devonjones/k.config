@@ -3,12 +3,33 @@
 
 # swap files
 *.swp
+*.swo
+*~
 
-# py.test coverage files
+# py.test artifacts
+__pycache__
+
+# log files
+*.log
+
+# coverage files
 .coverage
 htmlcov
 
+# ide files
+.komodoproject
+.komodotools
+.classpath
+.project
+.settings
+.idea
+*.iml
+*.ipr
+*.iws
+
 # build files
-build
-dist
-k.config.egg-info
+target
+dist/
+k.config.egg-info/
+build/
+MANIFEST
