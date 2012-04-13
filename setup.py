@@ -1,33 +1,47 @@
 #!/usr/bin/env python
-from setuptools import setup, Command
+import os.path
+import re
+from setuptools import Command, find_packages, setup
 
 class PyTest(Command):
-    user_options = []
-    def initialize_options(self):
-        pass
-    def finalize_options(self):
-        pass
-    def run(self):
-        import sys,subprocess
-        errno = subprocess.call([sys.executable, 'runtests.py'])
-        raise SystemExit(errno)
+	user_options = []
+	def initialize_options(self):
+		pass
+	def finalize_options(self):
+		pass
+	def run(self):
+		import sys,subprocess
+		errno = subprocess.call([sys.executable, "runtests.py"])
+		raise SystemExit(errno)
 
 def get_version():
 	build_version = 1
 	return build_version
 
+def parse_requirements(file_name):
+	"""Taken from http://cburgmer.posterous.com/pip-requirementstxt-and-setuppy"""
+	requirements = []
+	for line in open(os.path.join(os.path.dirname(__file__), "config", file_name), "r"):
+		line = line.strip()
+		# comments and blank lines
+		if re.match(r"(^#)|(^$)", line):
+			continue
+		requirements.append(line)
+	return requirements
+
 setup(
-	name='k.config',
-	version='0.1.%s' % get_version(),
-	url = 'https://wiki.knewton.net/index.php/Tech',
-	author='Devon Jones',
-	author_email='devon@knewton.com',
-	license = 'Proprietary',
-	packages=['k', 'k.config'],
-    cmdclass = {'test': PyTest},
-	install_requires=[
-		'PyYAML>=3.09',
-	],
-	description = 'The knewton config library.',
-	long_description = '\n' + open('README').read(),
+	name="k.config",
+	version="0.1.%s" % get_version(),
+	url = "https://wiki.knewton.net/index.php/Tech",
+	author="Devon Jones",
+	author_email="devon@knewton.com",
+	license = "Proprietary",
+	packages=find_packages(),
+	cmdclass = {"test": PyTest},
+	package_data = {"config": ["requirements*.txt"]},
+	install_requires=parse_requirements("requirements.external.txt")
+			+ parse_requirements("requirements.internal.txt"),
+	tests_require=parse_requirements("requirements.testing.txt"),
+	description = "The knewton config library.",
+	long_description = "\n" + open("README").read(),
 )

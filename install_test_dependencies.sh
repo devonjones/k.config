@@ -1,6 +1,10 @@
 #!/bin/bash
 
+# Install test and system-level runtime dependencies here.
+
+set -e
+
 sudo apt-get install -y python-setuptools python-yaml
-pip install pytest
-pip install coverage
-pip install pytest_cov
+sudo pip install pytest
+sudo pip install coverage
+sudo pip install pytest_cov
