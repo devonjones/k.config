@@ -2,6 +2,9 @@
 
 set -e
 
+virtualenv_name=k.config
+package_name=k/config
+
 usage()
 {
 	cat << EOF
@@ -28,12 +31,9 @@ do
 	esac
 done
 
-dir=$(cd "$(dirname $0)";pwd)
-libname=config
-
-. /opt/virtualenvs/${libname}/bin/activate
+. /opt/virtualenvs/${virtualenv_name}/bin/activate
 
 find . -name '*.pyc' -exec rm {} \;
 
-python ./runtests.py --cov-report html --cov-report term --cov k/config
+python ./runtests.py --cov-report html --cov-report term --cov ${package_name}
 deactivate

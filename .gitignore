@@ -5,6 +5,7 @@
 *.swp
 *.swo
 *~
+*#
 
 # py.test artifacts
 __pycache__
@@ -21,6 +22,7 @@ htmlcov
 .komodotools
 .classpath
 .project
+.pydevproject
 .settings
 .idea
 *.iml

@@ -42,6 +42,6 @@ setup(
 	install_requires=parse_requirements("requirements.external.txt")
 			+ parse_requirements("requirements.internal.txt"),
 	tests_require=parse_requirements("requirements.testing.txt"),
-	description = "The knewton config library.",
+	description = "The Knewton config library.",
 	long_description = "\n" + open("README").read(),
 )

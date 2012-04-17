@@ -1,6 +1,7 @@
 import yaml
 import os
 
+FOO = 3
 class KnewtonConfigPathDefaults():
 	"""
 	This class is a singleton intended to hold the paths that will be looked at, in order, for finding config files.

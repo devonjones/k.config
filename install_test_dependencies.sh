@@ -12,6 +12,6 @@ if ! dpkg -l python-yaml > /dev/null 2>&1; then
 	sudo apt-get install -y python-yaml
 fi
 
-sudo pip install pytest
 sudo pip install coverage
+sudo pip install pytest
 sudo pip install pytest_cov
