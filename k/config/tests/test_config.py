@@ -12,7 +12,8 @@ class ConfigDefaultsTest(unittest.TestCase):
 		self.assertTrue("" in prefixes)
 		self.assertTrue(os.path.join('~', '.knewton') in prefixes)
 		self.assertTrue('/etc/knewton/' in prefixes)
-		self.assertEqual(len(prefixes), 3)
+		self.assertTrue('/etc/knewton/discovery/' in prefixes)
+		self.assertEqual(len(prefixes), 4)
 
 	def test_overload_config_defaults(self):
 		k.config.KnewtonConfigPath = k.config.KnewtonConfigPathDefaults(["./k/config/tests/configs"])

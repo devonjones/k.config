@@ -1,7 +1,7 @@
 import yaml
 import os
 
-FOO = 3
+
 class KnewtonConfigPathDefaults():
 	"""
 	This class is a singleton intended to hold the paths that will be looked at, in order, for finding config files.
@@ -9,7 +9,7 @@ class KnewtonConfigPathDefaults():
 	import config
 	config.KnewtonConfigPath = config.KnewtonConfigPathDefaults([os.path.abspath("config/tests/configs")])
 	"""
-	def __init__(self, pathlist=["", os.path.join('~', '.knewton'), '/etc/knewton/']):
+	def __init__(self, pathlist=("", os.path.join('~', '.knewton'), '/etc/knewton/', '/etc/knewton/discovery/')):
 		self.prefixes = pathlist
 
 	def __call__(self):
@@ -40,8 +40,8 @@ def fetch_knewton_config(default, config=None):
 	Parameters:
 		default - default file name to look for
 		config - override with this file name instead. (optional)
-		         Note: the pattern of using config is intended to make using this with
-				 OptionsParser easier.  otherwise, generally ignore the use of the config argument.
+			Note: the pattern of using config is intended to make using this with
+			OptionsParser easier.  otherwise, generally ignore the use of the config argument.
 	Raises:
 		IOError if no file is found
 	"""
@@ -62,13 +62,13 @@ class KnewtonConfigDefault:
 
 	def fetch_config(self, default, config=None):
 		"""
-		Returns the content of a yml config file as a hash.  If this config file has been read, 
+		Returns the content of a yml config file as a hash.  If this config file has been read,
 		this will instead return a cached value.
 		Parameters:
 			default - default file name to look for
 			config - override with this file name instead. (optional)
-					 Note: the pattern of using config is intended to make using this with
-					 OptionsParser easier.  otherwise, generally ignore the use of the config argument.
+					Note: the pattern of using config is intended to make using this with
+					OptionsParser easier.  otherwise, generally ignore the use of the config argument.
 		Raises:
 			IOError if no file is found
 		"""
