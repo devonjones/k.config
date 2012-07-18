@@ -2,8 +2,9 @@
 Classes and finctions that implement the config paradigm for Knewton.
 """
 
-import yaml
+import copy
 import os
+import yaml
 
 class KnewtonConfigPathDefaults(object):
 	"""
@@ -61,12 +62,35 @@ def fetch_knewton_config(default, config=None):
 		retcfg = config
 	return yaml.load(file(find_knewton_config_path(retcfg)))
 
+def fetch_knewton_config_mtime(default, config=None):
+	"""Returns the modified time of a config file. Will return 0
+	if the file does not exist, so we don't break on injected
+	data.
+	Parameters:
+	 - default: default file name to look for
+	 - config: override with this file name instead. (optional)
+	   Note: the pattern of using config is intended to make using this with
+	   OptionsParser easier.  Otherwise, generally ignore the use of the
+	   config argument.
+	"""
+	retcfg = default
+	if config:
+		retcfg = config
+
+	filename = find_knewton_config_path(retcfg)
+	if not os.path.isfile(filename):
+		return 0
+
+	mtime = os.stat(filename).st_mtime
+	return mtime
+
 class KnewtonConfigDefault(object):
 	"""
 	This is a caching singleton for the behavior of fetch_knewton_config
 	"""
 	def __init__(self):
 		self.config_types = {}
+		self.mtimes = {}
 
 	def __call__(self):
 		return self
@@ -86,12 +110,15 @@ class KnewtonConfigDefault(object):
 		 - IOError if no file is found
 		"""
 		key = str(default) + "__" + str(config)
-		if self.config_types.has_key(key):
-			return self.config_types[key]
-		else:
-			value = fetch_knewton_config(default, config)
-			self._add_config(value, default, config)
-			return value
+		curr_mtime = fetch_knewton_config_mtime(default, config=None)
+		if key in self.config_types:
+			mtime = self.mtimes.get(key)
+			if mtime is not None and mtime == curr_mtime:
+				return self.config_types[key]
+
+		value = fetch_knewton_config(default, config)
+		self._add_config(value, default, config, curr_mtime)
+		return value
 
 	def fetch_discovery(self, service_class, service_name):
 		"""
@@ -106,12 +133,13 @@ class KnewtonConfigDefault(object):
 			disc = {'server_list': [disc]}
 		return disc
 
-	def _add_config(self, config_hash, default, config=None):
+	def _add_config(self, config_hash, default, config=None, mtime=0):
 		"""
 		Adds a config to the cache
 		"""
 		key = str(default) + "__" + str(config)
 		self.config_types[key] = config_hash
+		self.mtimes[key] = mtime
 
 KnewtonConfig = KnewtonConfigDefault()
 
@@ -125,8 +153,14 @@ class KnewtonConfigTest(KnewtonConfigDefault):
 	    {'namespace': 'test', 'port': 11211, 'address': 'localhost'}}}
 	config.KnewtonConfig = config.KnewtonConfigTest(cache)
 	"""
-	def __init__(self, config_types={}):
-		self.config_types = config_types
+	def __init__(self, config_types=None, mtimes=None):
+		self.config_types = copy.deepcopy(config_types)
+		if self.config_types is None:
+			self.config_types = {}
+
+		self.mtimes = copy.deepcopy(mtimes)
+		if self.mtimes is None:
+			self.mtimes = {}
 
 	def fetch_config(self, default, config=None):
 		"""
