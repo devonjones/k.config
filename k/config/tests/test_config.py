@@ -120,6 +120,17 @@ class ConfigTests(unittest.TestCase):
 		self.assertEqual(config['username'], 'knewmena')
 		self.assertEqual(config['password'], 'knewmena')
 		self.assertEqual(config['host'], 'localhost')
+
+	def test_config_injection(self):
+		self.assertRaises(IOError, k.config.KnewtonConfig().fetch_config, 'fake_config/not_here')
+		config = {
+			'host': 'localhost',
+			'port': 12345,
+		}
+		k.config.KnewtonConfig()._add_config(config, 'fake_config/not_here')
+		payload = k.config.KnewtonConfig().fetch_config('fake_config/not_here')
+		self.assertEqual('localhost', payload['host'])
+		self.assertEqual(12345, payload['port'])
 		
 	def tearDown(self):
 		k.config.KnewtonConfigPath = self.orig

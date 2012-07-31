@@ -77,8 +77,9 @@ def fetch_knewton_config_mtime(default, config=None):
 	if config:
 		retcfg = config
 
-	filename = find_knewton_config_path(retcfg)
-	if not os.path.isfile(filename):
+	try:
+		filename = find_knewton_config_path(retcfg)
+	except IOError:
 		return 0
 
 	mtime = os.stat(filename).st_mtime
