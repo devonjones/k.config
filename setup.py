@@ -14,12 +14,6 @@ class PyTest(Command):
 		errno = subprocess.call([sys.executable, "runtests.py"])
 		raise SystemExit(errno)
 
-def get_version():
-	"""build_version is replaced with the current build number
-	as part of the jenkins build job"""
-	build_version = 1
-	return build_version
-
 def parse_requirements(file_name):
 	"""Taken from http://cburgmer.posterous.com/pip-requirementstxt-and-setuppy"""
 	requirements = []
@@ -32,18 +26,17 @@ def parse_requirements(file_name):
 	return requirements
 
 setup(
-	name="k.config",
-	version="0.3.%s" % get_version(),
-	url = "https://wiki.knewton.net/index.php/Tech",
+	name="knewton.config",
+	version="0.9.0",
+	url = "https://github.com/Knewton/k.config",
 	author="Devon Jones",
 	author_email="devon@knewton.com",
-	license = "Proprietary",
+	license = "Apache",
 	packages=find_packages(),
 	cmdclass = {"test": PyTest},
-	package_data = {"config": ["requirements*.txt"]},
-	install_requires=parse_requirements("requirements.external.txt")
-			+ parse_requirements("requirements.internal.txt"),
-	tests_require=parse_requirements("requirements.testing.txt"),
+	package_data = {"config": ["requirements.txt"]},
+	install_requires=parse_requirements("requirements.txt"),
+	tests_require=parse_requirements("requirements.txt"),
 	description = "The Knewton config library.",
-	long_description = "\n" + open("README").read(),
+	long_description = "\n" + open("README.md").read(),
 )

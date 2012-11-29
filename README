@@ -1,5 +1,0 @@
-./bin/create_virtualenv.sh 
-./install_test_dependencies.sh
-./test.sh
-./setup.py sdist
-./setup.py test
