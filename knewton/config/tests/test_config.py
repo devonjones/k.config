@@ -26,19 +26,22 @@ class ConfigDefaultsTest(unittest.TestCase):
 class ConfigTests(unittest.TestCase):
 	def setUp(self):
 		self.orig = knewton.config.ConfigPath
-		knewton.config.ConfigPath = knewton.config.ConfigPathDefaults(
+		self.config_path = knewton.config.ConfigPath = knewton.config.ConfigPathDefaults(
 			[os.path.abspath("knewton/config/tests/configs")])
 		knewton.config.Config.config_types = {}
+		knewton.config.Config.config_path = self.config_path
 
 	def test_find_config_path(self):
 		path = knewton.config.find_config_path('databases/reports')
 		parts = path.split("/")
 		self.assertEqual(parts[-1], 'reports.yml')
 		self.assertEqual(parts[-2], 'databases')
-		self.assertRaises(IOError, knewton.config.find_config_path, 'databases/foo')
+		self.assertRaises(
+			IOError, knewton.config.find_config_path, 'databases/foo')
 
 	def test_fetch_config(self):
-		payload = knewton.config.fetch_config('memcached/sessions.yml')
+		payload = knewton.config.fetch_config(
+			'memcached/sessions.yml', config_path=self.config_path)
 		self.assertTrue('memcache' in payload.keys())
 		self.assertEqual(len(payload.keys()), 1)
 		self.assertTrue('namespace' in payload['memcache'].keys())
@@ -51,7 +54,10 @@ class ConfigTests(unittest.TestCase):
 		self.assertRaises(IOError, knewton.config.fetch_config, 'databases/foo')
 
 	def test_override_fetch_config(self):
-		payload = knewton.config.fetch_config('databases/reports', 'memcached/sessions.yml')
+		payload = knewton.config.fetch_config(
+			'databases/reports',
+			'memcached/sessions.yml',
+			config_path=self.config_path)
 		self.assertTrue('memcache' in payload.keys())
 		self.assertEqual(len(payload.keys()), 1)
 		self.assertTrue('namespace' in payload['memcache'].keys())
@@ -79,10 +85,12 @@ class ConfigTests(unittest.TestCase):
 		self.assertTrue('memcached/sessions.yml__None' in cache.keys())
 		print cache.keys()
 		self.assertEqual(len(cache.keys()), 1)
-		self.assertTrue('memcache' in cache['memcached/sessions.yml__None'].keys())
+		self.assertTrue(
+			'memcache' in cache['memcached/sessions.yml__None'].keys())
 		self.assertEqual(len(cache.keys()), 1)
 
-		payload2 = knewton.config.Config().fetch_config('memcached/sessions.yml')
+		payload2 = knewton.config.Config().fetch_config(
+			'memcached/sessions.yml')
 		self.assertEqual(cache['memcached/sessions.yml__None'], payload2)
 
 	def test_discovery(self):
@@ -103,7 +111,8 @@ class ConfigTests(unittest.TestCase):
 		self.assertEqual(config['host'], 'localhost')
 		
 	def test_discovery_no_server_list(self):
-		payload = knewton.config.Config().fetch_config('discovery/mysql/knewmena.yml')
+		payload = knewton.config.Config().fetch_config(
+			'discovery/mysql/knewmena.yml')
 		self.assertTrue(not payload.has_key('server_list'))
 		payload = knewton.config.Config().fetch_discovery('mysql', 'knewmena')
 		self.assertTrue('server_list' in payload.keys())
@@ -122,7 +131,10 @@ class ConfigTests(unittest.TestCase):
 		self.assertEqual(config['host'], 'localhost')
 
 	def test_config_injection(self):
-		self.assertRaises(IOError, knewton.config.Config().fetch_config, 'fake_config/not_here')
+		self.assertRaises(
+			IOError,
+			knewton.config.Config().fetch_config,
+			'fake_config/not_here')
 		config = {
 			'host': 'localhost',
 			'port': 12345,
@@ -143,7 +155,9 @@ class ConfigTestTests(unittest.TestCase):
 		self.cache = {
 				'memcached/sessions.yml__None': {
 					'memcache': {
-						'namespace': 'test', 'port': 11211, 'address': 'localhost'
+						'namespace': 'test',
+						'port': 11211,
+						'address': 'localhost'
 					}
 				}
 			}

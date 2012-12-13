@@ -12,9 +12,10 @@ class ConfigPathDefaults(object):
 	in order, for finding config files.
 	If you want to override the defaults of [".", "~/.knewton", "/etc/knewton"],
 	do the following:
-	import config
-	config.ConfigPath = config.ConfigPathDefaults(
-	  [os.path.abspath("config/tests/configs")])
+	import knewton.config
+	MyConfigPath = knewton.config.ConfigPathDefaults(
+		[os.path.abspath("config/tests/configs")])
+	MyConfig = knewton.config.ConfigDefault(config_path=MyConfigPath)
 	"""
 	def __init__(self, pathlist=[
 			"",
@@ -27,7 +28,7 @@ class ConfigPathDefaults(object):
 
 ConfigPath = ConfigPathDefaults()
 
-def find_config_path(file_name):
+def find_config_path(file_name, config_path=ConfigPath):
 	"""
 	Not intended for calling outside of this module.
 	This function will look in all paths, in order
@@ -37,7 +38,7 @@ def find_config_path(file_name):
 	Raises:
 	 - IOError if no file is found
 	"""
-	for prefix in ConfigPath().prefixes:
+	for prefix in config_path.prefixes:
 		file_path = os.path.expanduser(os.path.join(prefix, file_name))
 		if os.path.exists(file_path):
 			return file_path
@@ -45,7 +46,7 @@ def find_config_path(file_name):
 			return file_path + ".yml"
 	raise IOError("Config file %s does not exist" % (file_name))
 
-def fetch_config(default, config=None):
+def fetch_config(default, config=None, config_path=ConfigPath):
 	"""
 	Returns the content of a yml config file as a hash
 	Parameters:
@@ -60,9 +61,9 @@ def fetch_config(default, config=None):
 	retcfg = default
 	if config:
 		retcfg = config
-	return yaml.load(file(find_config_path(retcfg)))
+	return yaml.load(file(find_config_path(retcfg, config_path=config_path)))
 
-def fetch_config_mtime(default, config=None):
+def fetch_config_mtime(default, config=None, config_path=ConfigPath):
 	"""Returns the modified time of a config file. Will return 0
 	if the file does not exist, so we don't break on injected
 	data.
@@ -78,7 +79,7 @@ def fetch_config_mtime(default, config=None):
 		retcfg = config
 
 	try:
-		filename = find_config_path(retcfg)
+		filename = find_config_path(retcfg, config_path=config_path)
 	except IOError:
 		return 0
 
@@ -89,9 +90,10 @@ class ConfigDefault(object):
 	"""
 	This is a caching singleton for the behavior of fetch_config
 	"""
-	def __init__(self):
+	def __init__(self, config_path=ConfigPath):
 		self.config_types = {}
 		self.mtimes = {}
+		self.config_path = config_path
 
 	def __call__(self):
 		return self
@@ -111,13 +113,13 @@ class ConfigDefault(object):
 		 - IOError if no file is found
 		"""
 		key = str(default) + "__" + str(config)
-		curr_mtime = fetch_config_mtime(default, config=None)
+		curr_mtime = fetch_config_mtime(default, config=None, config_path=self.config_path)
 		if key in self.config_types:
 			mtime = self.mtimes.get(key)
 			if mtime is not None and mtime == curr_mtime:
 				return self.config_types[key]
 
-		value = fetch_config(default, config)
+		value = fetch_config(default, config, config_path=self.config_path)
 		self._add_config(value, default, config, curr_mtime)
 		return value
 
