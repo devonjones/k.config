@@ -98,6 +98,16 @@ class ConfigDefault(object):
 	def __call__(self):
 		return self
 
+	def config_exists(self, default, config=None):
+		retcfg = default
+		if config:
+			retcfg = config
+		try:
+			find_config_path(retcfg, config_path=self.config_path)
+		except IOError:
+			return False
+		return True
+
 	def fetch_config(self, default, config=None):
 		"""
 		Returns the content of a yml config file as a hash.  If this config

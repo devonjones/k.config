@@ -27,7 +27,7 @@ def parse_requirements(file_name):
 
 setup(
 	name="knewton.config",
-	version="1.0.0",
+	version="1.0.1",
 	url = "https://github.com/Knewton/k.config",
 	author="Devon Jones",
 	author_email="devon@knewton.com",
