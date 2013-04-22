@@ -12,10 +12,10 @@ class ConfigPathDefaults(object):
 	in order, for finding config files.
 	If you want to override the defaults of [".", "~/.knewton", "/etc/knewton"],
 	do the following:
-	import knewton.config
-	MyConfigPath = knewton.config.ConfigPathDefaults(
+	import k.config
+	MyConfigPath = k.config.ConfigPathDefaults(
 		[os.path.abspath("config/tests/configs")])
-	MyConfig = knewton.config.ConfigDefault(config_path=MyConfigPath)
+	MyConfig = k.config.ConfigDefault(config_path=MyConfigPath)
 	"""
 	def __init__(self, pathlist=[
 			"",

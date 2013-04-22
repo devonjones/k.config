@@ -26,7 +26,7 @@ def parse_requirements(file_name):
 	return requirements
 
 setup(
-	name="knewton.config",
+	name="k.config",
 	version="1.0.1",
 	url = "https://github.com/Knewton/k.config",
 	author="Devon Jones",

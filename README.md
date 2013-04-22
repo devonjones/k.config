@@ -1,4 +1,4 @@
-knewton.config
+k.config
 ========
 
 Configuration library for shared config files across projects.
@@ -8,21 +8,21 @@ This package is used to centralize configuration into one place on eh file syste
 Usage
 ========
 
-import knewton.config
+import k.config
 
-conf = knewton.config.fetch_config("memcached/sessions.yml")
+conf = k.config.fetch_config("memcached/sessions.yml")
 
 the .yml is optional: 
 
-conf = knewton.config.fetch_config("memcached/sessions")
+conf = k.config.fetch_config("memcached/sessions")
 
 If you want caching you can do:
 
-conf = knewton.config.Config().fetch_config("database/auth.yml")
+conf = k.config.Config().fetch_config("database/auth.yml")
 
 If you would like to override the search path, before making any calls you can use:
 
-knewton.config.ConfigPath([".config", "~/.config", "/etc/config"])
+k.config.ConfigPath([".config", "~/.config", "/etc/config"])
 
 And then follow on calls will search those paths in order instead.
 
@@ -33,5 +33,5 @@ config = {
 	'port': 12345
 }
 
-knewton.config.Config()._add_config(config, 'fake_config/not_here')
+k.config.Config()._add_config(config, 'fake_config/not_here')
 

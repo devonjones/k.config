@@ -32,6 +32,6 @@ htmlcov
 # build files
 target
 dist/
-k.config.egg-info/
+*.egg-info/
 build/
 MANIFEST
