@@ -10,7 +10,7 @@ class PyTest(Command):
 	def finalize_options(self):
 		pass
 	def run(self):
-		import sys,subprocess
+		import sys, subprocess
 		errno = subprocess.call([sys.executable, "runtests.py"])
 		raise SystemExit(errno)
 
