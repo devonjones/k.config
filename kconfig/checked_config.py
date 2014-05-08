@@ -3,7 +3,7 @@ import keyword
 import re
 import types
 
-from k.config import Config
+from kconfig import Config
 
 def _validate(config_dict, config_fields):
 	"""Validate a parsed config dictionary

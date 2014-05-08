@@ -1,12 +1,12 @@
 import os.path
 import unittest
 
-from k.config.checked_config import CheckedConfig
-from k.config.checked_config import NestedField
-from k.config.checked_config import ListField
-from k.config.checked_config import StringField
-from k.config.checked_config import IntField
-from k.config.checked_config import BoolField
+from kconfig.checked_config import CheckedConfig
+from kconfig.checked_config import NestedField
+from kconfig.checked_config import ListField
+from kconfig.checked_config import StringField
+from kconfig.checked_config import IntField
+from kconfig.checked_config import BoolField
 
 CONFIGS_DIR = os.path.join(os.path.dirname(__file__), "configs")
 

@@ -1,2 +1,2 @@
 [run]
-omit=k/config/tests/*
+omit=kconfig/tests/*

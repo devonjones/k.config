@@ -2,8 +2,8 @@
 Classes and finctions that implement the config paradigm for Knewton.
 """
 
-import copy
 import os
+import copy
 import yaml
 
 class ConfigPathDefaults(object):
@@ -12,15 +12,17 @@ class ConfigPathDefaults(object):
 	in order, for finding config files.
 	If you want to override the defaults of [".", "~/.knewton", "/etc/knewton"],
 	do the following:
-	import k.config
-	MyConfigPath = k.config.ConfigPathDefaults(
+	import kconfig
+	MyConfigPath = kconfig.ConfigPathDefaults(
 		[os.path.abspath("config/tests/configs")])
-	MyConfig = k.config.ConfigDefault(config_path=MyConfigPath)
+	MyConfig = kconfig.ConfigDefault(config_path=MyConfigPath)
 	"""
-	def __init__(self, pathlist=[
-			"",
-			os.path.join('~', '.knewton'),
-			'/etc/knewton/']):
+	def __init__(self, pathlist=None):
+		if not pathlist:
+			pathlist = [
+				"",
+				os.path.join('~', '.knewton'),
+				'/etc/knewton/']
 		self.prefixes = pathlist
 
 	def __call__(self):
@@ -28,7 +30,7 @@ class ConfigPathDefaults(object):
 
 ConfigPath = ConfigPathDefaults()
 
-def find_config_path(file_name, config_path=ConfigPath):
+def find_config_path(file_name, config_path=None):
 	"""
 	Not intended for calling outside of this module.
 	This function will look in all paths, in order
@@ -38,15 +40,18 @@ def find_config_path(file_name, config_path=ConfigPath):
 	Raises:
 	 - IOError if no file is found
 	"""
+	if not config_path:
+		config_path = ConfigPath
 	for prefix in config_path.prefixes:
 		file_path = os.path.expanduser(os.path.join(prefix, file_name))
+		print file_path
 		if os.path.exists(file_path):
 			return file_path
 		if os.path.exists(file_path + ".yml"):
 			return file_path + ".yml"
 	raise IOError("Config file %s does not exist" % (file_name))
 
-def fetch_config(default, config=None, config_path=ConfigPath):
+def fetch_config(default, config=None, config_path=None):
 	"""
 	Returns the content of a yml config file as a hash
 	Parameters:
@@ -58,13 +63,15 @@ def fetch_config(default, config=None, config_path=ConfigPath):
 	Raises:
 	 - IOError if no file is found
 	"""
+	if not config_path:
+		config_path = ConfigPath
 	retcfg = default
 	if config:
 		retcfg = config
 	return yaml.load(file(find_config_path(retcfg, config_path=config_path)))
 
-def fetch_config_mtime(default, config=None, config_path=ConfigPath):
-	"""Returns the modified time of a config file. Will return 0
+def fetch_config_mtime(default, config=None, config_path=None):
+	"""Returns the modified time of a config file. Will return -1
 	if the file does not exist, so we don't break on injected
 	data.
 	Parameters:
@@ -74,6 +81,8 @@ def fetch_config_mtime(default, config=None, config_path=ConfigPath):
 	   OptionsParser easier.  Otherwise, generally ignore the use of the
 	   config argument.
 	"""
+	if not config_path:
+		config_path = ConfigPath
 	retcfg = default
 	if config:
 		retcfg = config
@@ -81,7 +90,7 @@ def fetch_config_mtime(default, config=None, config_path=ConfigPath):
 	try:
 		filename = find_config_path(retcfg, config_path=config_path)
 	except IOError:
-		return 0
+		return -1
 
 	mtime = os.stat(filename).st_mtime
 	return mtime
@@ -90,9 +99,11 @@ class ConfigDefault(object):
 	"""
 	This is a caching singleton for the behavior of fetch_config
 	"""
-	def __init__(self, config_path=ConfigPath):
+	def __init__(self, config_path=None):
 		self.config_types = {}
 		self.mtimes = {}
+		if not config_path:
+			config_path = ConfigPath
 		self.config_path = config_path
 
 	def __call__(self):
@@ -111,7 +122,7 @@ class ConfigDefault(object):
 	def fetch_config(self, default, config=None):
 		"""
 		Returns the content of a yml config file as a hash.  If this config
-		file has been read, 
+		file has been read,
 		this will instead return a cached value.
 		Parameters:
 		 - default: default file name to look for
@@ -123,7 +134,8 @@ class ConfigDefault(object):
 		 - IOError if no file is found
 		"""
 		key = str(default) + "__" + str(config)
-		curr_mtime = fetch_config_mtime(default, config=None, config_path=self.config_path)
+		curr_mtime = fetch_config_mtime(
+			default, config=None, config_path=self.config_path)
 		if key in self.config_types:
 			mtime = self.mtimes.get(key)
 			if mtime is not None and mtime == curr_mtime:
@@ -133,20 +145,7 @@ class ConfigDefault(object):
 		self._add_config(value, default, config, curr_mtime)
 		return value
 
-	def fetch_discovery(self, service_class, service_name):
-		"""
-		Call this function to fetch a discovery file from knewton config.
-		Parameters:
-		 - service_class: Class of the service
-		 - service_name: Name of the service
-		"""
-		path = ['discovery', service_class, service_name]
-		disc = self.fetch_config('/'.join(path))
-		if not disc.has_key('server_list'):
-			disc = {'server_list': [disc]}
-		return disc
-
-	def _add_config(self, config_hash, default, config=None, mtime=0):
+	def _add_config(self, config_hash, default, config=None, mtime=-1):
 		"""
 		Adds a config to the cache
 		"""
@@ -158,15 +157,18 @@ Config = ConfigDefault()
 
 class ConfigTest(ConfigDefault):
 	"""
-	This is a caching singleton for testing.  Use this class
+	This is a caching singleton for application testing.  Use this class
 	to override the default behavior of Config like so:
 	import config
 	cache = {'memcached/sessions.yml__None':
 	  {'memcache':
 	    {'namespace': 'test', 'port': 11211, 'address': 'localhost'}}}
-	config.Config = config.ConfigTest(cache)
+	kconfig.Config = kconfig.ConfigTest(cache)
+
+	If ConfigTest does not have a cached value, it will attempt to
+	fall back on reading the configs from disk.
 	"""
-	def __init__(self, config_types=None, mtimes=None):
+	def __init__(self, config_types=None, mtimes=None, config_path=None):
 		self.config_types = copy.deepcopy(config_types)
 		if self.config_types is None:
 			self.config_types = {}
@@ -174,12 +176,17 @@ class ConfigTest(ConfigDefault):
 		self.mtimes = copy.deepcopy(mtimes)
 		if self.mtimes is None:
 			self.mtimes = {}
+		if not config_path:
+			config_path = ConfigPath
+		self.config_path = config_path
 
 	def fetch_config(self, default, config=None):
 		"""
 		Returns values from the cache
 		"""
 		key = str(default) + "__" + str(config)
+		if not self.config_types.has_key(key):
+			return super(ConfigTest, self).fetch_config(default, config)
 		return self.config_types[key]
 
 	def add_config(self, config_hash, default, config=None):

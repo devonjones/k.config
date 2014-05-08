@@ -1,4 +1,4 @@
-k.config
+kconfig
 ========
 
 Configuration library for shared config files across projects.
@@ -8,21 +8,21 @@ This package is used to centralize configuration into one place on eh file syste
 Usage
 ========
 
-import k.config
+import kconfig
 
-conf = k.config.fetch_config("memcached/sessions.yml")
+conf = kconfig.fetch_config("memcached/sessions.yml")
 
 the .yml is optional: 
 
-conf = k.config.fetch_config("memcached/sessions")
+conf = kconfig.fetch_config("memcached/sessions")
 
 If you want caching you can do:
 
-conf = k.config.Config().fetch_config("database/auth.yml")
+conf = kconfig.Config().fetch_config("database/auth.yml")
 
 If you would like to override the search path, before making any calls you can use:
 
-k.config.ConfigPath([".config", "~/.config", "/etc/config"])
+kconfig.ConfigPath([".config", "~/.config", "/etc/config"])
 
 And then follow on calls will search those paths in order instead.
 
@@ -33,5 +33,5 @@ config = {
 	'port': 12345
 }
 
-k.config.Config()._add_config(config, 'fake_config/not_here')
+kconfig.Config()._add_config(config, 'fake_config/not_here')
 
