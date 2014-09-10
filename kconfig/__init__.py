@@ -44,7 +44,6 @@ def find_config_path(file_name, config_path=None):
 		config_path = ConfigPath
 	for prefix in config_path.prefixes:
 		file_path = os.path.expanduser(os.path.join(prefix, file_name))
-		print file_path
 		if os.path.exists(file_path):
 			return file_path
 		if os.path.exists(file_path + ".yml"):
